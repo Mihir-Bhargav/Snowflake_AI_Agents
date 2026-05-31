@@ -1,0 +1,10 @@
+source_id: loans
+domain: loans
+connector: synthetic
+read_mode: full                # loan facility snapshot
+watermark: snapshot_date
+target_bronze: bronze.loans
+pii_columns: []
+contract: contracts/loans.yaml
+synthetic:
+  loan_count: 600

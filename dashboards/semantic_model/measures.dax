@@ -1,0 +1,66 @@
+// Power BI / Fabric semantic-model measures — the ONE official definition of each KPI
+// (docs/ARCHITECTURE.md §9, docs/DATA_MODEL.md §4). Defined over the Silver star schema so
+// executives can slice by date / segment / channel / product. Import into the semantic model
+// bound to the Gold/Silver lakehouse. All amounts EUR.
+//
+// Expected tables (Silver): fact_transaction, fact_account_balance, fact_loan,
+// dim_date, dim_account, dim_customer, dim_channel.
+// Relationships: facts[date_sk]→dim_date[date_sk]; facts[account_sk]→dim_account[account_sk];
+// dim_account[customer_sk]→dim_customer[customer_sk]; fact_transaction[channel_sk]→dim_channel.
+
+// 1. Deposits ---------------------------------------------------------------
+Total Deposits =
+    CALCULATE ( SUM ( fact_account_balance[balance_eur] ), fact_account_balance[is_deposit] = TRUE )
+
+Deposits Growth % =
+    VAR Curr = [Total Deposits]
+    VAR Prior = CALCULATE ( [Total Deposits], DATEADD ( dim_date[date], -1, DAY ) )
+    RETURN DIVIDE ( Curr - Prior, Prior ) * 100
+
+// 2. Net loans --------------------------------------------------------------
+Net Loans = SUM ( fact_loan[principal_outstanding_eur] )
+
+Loans Growth % =
+    VAR Curr = [Net Loans]
+    VAR Prior = CALCULATE ( [Net Loans], DATEADD ( dim_date[date], -1, DAY ) )
+    RETURN DIVIDE ( Curr - Prior, Prior ) * 100
+
+// 3. Loan-to-deposit ratio --------------------------------------------------
+Loan-to-Deposit Ratio = DIVIDE ( [Net Loans], [Total Deposits] )
+
+// 4. Net interest margin (simplified: net interest flow / earning assets) ----
+Net Interest Margin % =
+    VAR NetInterest =
+        CALCULATE ( SUM ( fact_transaction[amount_eur] ), fact_transaction[is_interest] = TRUE )
+    RETURN DIVIDE ( NetInterest, [Net Loans] ) * 100
+
+// 5. Fee & commission income (fees are negative; income is their magnitude) ---
+Fee Income =
+    -1 * CALCULATE ( SUM ( fact_transaction[amount_eur] ), fact_transaction[is_fee] = TRUE )
+
+// 6. Transaction volume & value ---------------------------------------------
+Transaction Volume = COUNTROWS ( fact_transaction )
+Transaction Value = SUMX ( fact_transaction, ABS ( fact_transaction[amount_eur] ) )
+
+// 7. NPL / delinquency rate -------------------------------------------------
+NPL Rate % =
+    DIVIDE (
+        CALCULATE ( SUM ( fact_loan[principal_outstanding_eur] ), fact_loan[is_npl] = TRUE ),
+        [Net Loans]
+    ) * 100
+
+// 8. Active customers + net new ---------------------------------------------
+Active Customers =
+    CALCULATE ( DISTINCTCOUNT ( dim_account[customer_sk] ),
+                CROSSFILTER ( fact_transaction[account_sk], dim_account[account_sk], BOTH ) )
+
+Net New Customers =
+    VAR Curr = [Active Customers]
+    VAR Prior = CALCULATE ( [Active Customers], DATEADD ( dim_date[date], -1, DAY ) )
+    RETURN Curr - Prior
+
+// 9. Digital channel mix ----------------------------------------------------
+Digital Channel Mix % =
+    VAR Digital =
+        CALCULATE ( COUNTROWS ( fact_transaction ), dim_channel[is_digital] = TRUE )
+    RETURN DIVIDE ( Digital, [Transaction Volume] ) * 100

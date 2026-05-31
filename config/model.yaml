@@ -1,0 +1,9 @@
+# Model access — see docs/DEPLOYMENT.md §4. Provider is swappable (ModelProvider seam).
+# Insight Agent uses this; the ETL agents never call the model.
+model:
+  name: gemini-2.5-flash       # Gemini 2.5 (flash = fast/cheap; use gemini-2.5-pro for max quality)
+  provider: gemini             # stub | gemini | anthropic | bedrock | vertex
+  key_ref: env://GEMINI_API_KEY   # local: .env ; in Fabric: kv://banking-ai/model-api-key
+  region: westeurope
+  max_tokens: 4096        # headroom for a fuller briefing (thinking disabled in provider)
+  temperature: 0.3

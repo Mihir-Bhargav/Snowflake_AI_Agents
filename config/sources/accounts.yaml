@@ -1,0 +1,10 @@
+source_id: accounts
+domain: accounts
+connector: synthetic
+read_mode: full                # account master snapshot, fully refreshed each run
+watermark: snapshot_date
+target_bronze: bronze.accounts
+pii_columns: []
+contract: contracts/accounts.yaml
+synthetic:
+  account_count: 2000

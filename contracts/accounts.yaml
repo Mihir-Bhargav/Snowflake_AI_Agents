@@ -1,0 +1,18 @@
+contract: accounts
+version: 1
+schema:
+  required_columns:
+    account_id: string
+    customer_id: string
+    product_type: string
+    status: string
+    balance: decimal
+    currency: string
+    snapshot_date: date
+  allow_extra_columns: true
+checks:
+  not_null: [account_id, customer_id, product_type]
+  unique: [account_id]
+  allowed_values:
+    product_type: [current, savings, deposit, loan]
+    status: [active, dormant, closed]

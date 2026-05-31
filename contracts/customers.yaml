@@ -1,0 +1,14 @@
+contract: customers
+version: 1
+schema:
+  required_columns:
+    customer_id: string
+    segment: string
+    country: string
+    onboarded_date: date
+  allow_extra_columns: true
+checks:
+  not_null: [customer_id, segment]
+  unique: [customer_id]
+  allowed_values:
+    segment: [retail, sme, corporate, private]

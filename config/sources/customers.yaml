@@ -1,0 +1,10 @@
+source_id: customers
+domain: customers
+connector: synthetic
+read_mode: full
+watermark: onboarded_date
+target_bronze: bronze.customers
+pii_columns: [full_name, birth_date]   # tokenized at Silver; raw PII never leaves Bronze
+contract: contracts/customers.yaml
+synthetic:
+  customer_count: 1200

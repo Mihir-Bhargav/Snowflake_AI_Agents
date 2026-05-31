@@ -1,0 +1,13 @@
+# Source registry entry — see docs/ARCHITECTURE.md §3.1 and docs/DATA_MODEL.md §1.
+# Worker agents are configured dynamically from entries like this. Schema-on-read:
+# Bronze stores whatever arrives; the `contract` governs interpretation at Silver.
+source_id: core_transactions
+domain: transactions
+connector: synthetic           # synthetic | jdbc | rest | onelake_files | cdc
+read_mode: incremental         # full | incremental
+watermark: posting_ts          # column driving incremental reads
+target_bronze: bronze.transactions
+pii_columns: [counterparty]    # tokenized at Silver
+contract: contracts/transactions.yaml
+synthetic:
+  rows_per_day: 5000

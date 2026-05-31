@@ -1,0 +1,9 @@
+# FX → EUR conversion. Single reporting currency is EUR (docs/ARCHITECTURE.md §3.1).
+# Phase 2 uses static rates; a real pipeline sources daily rates as a reference dimension.
+# Interpretation: 1 unit of <currency> = <rate> EUR.
+base: EUR
+rates:
+  EUR: 1.00
+  GBP: 1.17
+  USD: 0.92
+  CHF: 1.04

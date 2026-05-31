@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "banking-agents"
+version = "0.1.0"
+description = "Agent-driven banking analytics pipeline on Microsoft Fabric (codename Snowflake_AI_Agents)"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas>=2.2",
+    "pyarrow>=15",
+    "pyyaml>=6",
+    "faker>=24",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+generate-data = "banking_agents.synthetic.cli:main"
+run-pipeline = "banking_agents.pipeline_cli:main"
+inspect-lake = "banking_agents.inspect:main"
+build-dashboard = "banking_agents.dashboard:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

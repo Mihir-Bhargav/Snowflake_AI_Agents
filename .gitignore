@@ -1,0 +1,19 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+
+# Generated data (synthetic landing + medallion layers)
+data/
+
+# Secrets / local env
+.env
+*.local.yaml
+
+# OS / editor
+.DS_Store
+
+# Personal chat transcript (not part of the project) — remove this line to include it
+claude_chat_for_sharmada.md

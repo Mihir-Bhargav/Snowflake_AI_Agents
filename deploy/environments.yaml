@@ -1,0 +1,32 @@
+# Environment descriptor (docs/DEPLOYMENT.md §5). Same agent code across all three;
+# only the bindings below change. Promotion = point at the next workspace + secrets.
+environments:
+  dev:
+    fabric_workspace: banking-ai-dev
+    onelake_lakehouse: banking_lakehouse
+    mcp_url: local                       # local dev uses LocalFilesystemMCP (no service)
+    key_vault_url: null                  # local dev resolves secrets from .env
+    model_provider: stub                 # offline; no model calls
+    data: synthetic
+
+  test:
+    fabric_workspace: banking-ai-test
+    onelake_lakehouse: banking_lakehouse
+    mcp_url: https://banking-ai-mcp-test.westeurope.azurecontainerapps.io
+    key_vault_url: https://banking-ai-test-kv.vault.azure.net/
+    model_provider: gemini               # real provider, chosen at security review
+    data: synthetic                      # full volume
+
+  prod:
+    fabric_workspace: banking-ai-prod
+    onelake_lakehouse: banking_lakehouse
+    mcp_url: https://banking-ai-mcp.westeurope.azurecontainerapps.io
+    key_vault_url: https://banking-ai-kv.vault.azure.net/
+    model_provider: gemini
+    data: real                           # real source connectors (replace synthetic)
+
+# Secrets are NEVER stored here. Referenced by name; resolved from Key Vault (prod/test)
+# or .env (dev). See banking_agents.config.resolve_secret.
+secret_refs:
+  model_api_key: kv://banking-ai/model-api-key
+  fabric_mcp_token: kv://banking-ai/fabric-mcp-token

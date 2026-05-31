@@ -1,0 +1,28 @@
+# Data-quality contract for the transactions source — see docs/DATA_MODEL.md §5.
+# The Validation/QA agent enforces these at each layer boundary. Schema is interpreted
+# (not enforced at ingest); extra columns are allowed and preserved.
+contract: transactions
+version: 1
+
+schema:
+  required_columns:
+    txn_id: string
+    account_id: string
+    posting_ts: timestamp
+    amount: decimal
+    currency: string
+    txn_type: string
+    channel: string
+  allow_extra_columns: true
+
+checks:
+  not_null: [txn_id, account_id, posting_ts, amount]
+  unique: [txn_id]
+  allowed_values:
+    txn_type: [payment, transfer, fee, interest, withdrawal, deposit]
+    channel: [mobile, web, atm, branch, card]
+  row_count:
+    # vs trailing average; hard-fail outside, warn inside warn-band
+    tolerance_pct: 40
+  ranges:
+    amount: { min: -1000000, max: 1000000 }

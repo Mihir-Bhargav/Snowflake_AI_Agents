@@ -1,0 +1,10 @@
+# Core data tooling
+pandas>=2.2
+pyarrow>=15          # Parquet / Delta-style columnar storage
+pyyaml>=6            # config + source registry + contracts
+
+# Synthetic data generation
+faker>=24            # realistic names, dates, etc.
+
+# Dev / test
+pytest>=8

@@ -1,0 +1,20 @@
+contract: loans
+version: 1
+schema:
+  required_columns:
+    loan_id: string
+    account_id: string
+    principal_outstanding: decimal
+    interest_rate: decimal
+    days_past_due: int
+    status: string
+    snapshot_date: date
+  allow_extra_columns: true
+checks:
+  not_null: [loan_id, account_id, principal_outstanding]
+  unique: [loan_id]
+  allowed_values:
+    status: [current, delinquent, default]
+  ranges:
+    days_past_due: { min: 0, max: 3650 }
+    principal_outstanding: { min: 0, max: 100000000 }
