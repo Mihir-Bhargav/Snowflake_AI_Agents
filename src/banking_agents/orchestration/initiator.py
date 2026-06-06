@@ -24,7 +24,7 @@ from .manifest import AuditEntry, QAResult, RunManifest, StageStatus
 
 class Initiator:
     def __init__(self, mcp: MCPClient, registry: dict[str, SourceConfig],
-                 *, model: ModelProvider | None = None, seed: int = 42):
+                 *, model: ModelProvider | None = None, seed: int | None = None):
         self.mcp = mcp
         self.registry = registry
         self.model = model

@@ -39,16 +39,17 @@ class GeneratorConfig:
     account_count: int = 2000
     loan_count: int = 600
     txns_per_day: int = 5000
-    seed: int = 42
+    seed: int | None = None   # None = non-deterministic (fresh data each run); set only for tests
     deposit_daily_growth: float = 0.0015   # ~0.15%/day baseline trend
     loan_daily_growth: float = 0.0008
     daily_noise: float = 0.004             # ±0.4% day-to-day jitter
 
 
-def _trend_factor(as_of: date, daily_growth: float, noise: float, seed: int, salt: int) -> float:
-    """Deterministic multiplier: compounding trend since the anchor + bounded daily jitter."""
+def _trend_factor(as_of: date, daily_growth: float, noise: float, salt: int) -> float:
+    """Multiplier: compounding trend since the anchor + bounded daily jitter. Keyed by date
+    (not the universe seed) so the trend stays coherent day-over-day even when data is random."""
     days = (as_of - ANCHOR_DATE).days
-    r = random.Random(seed * 7919 + as_of.toordinal() + salt)
+    r = random.Random(as_of.toordinal() * 131 + salt)
     jitter = 1 + (r.random() * 2 - 1) * noise
     return (1 + daily_growth) ** days * jitter
 
@@ -58,9 +59,10 @@ class BankUniverse:
 
     def __init__(self, config: GeneratorConfig | None = None):
         self.config = config or GeneratorConfig()
-        self._rng = random.Random(self.config.seed)
+        self._rng = random.Random(self.config.seed)   # seed=None -> system entropy
         self._faker = Faker("en_IE")
-        self._faker.seed_instance(self.config.seed)
+        if self.config.seed is not None:
+            self._faker.seed_instance(self.config.seed)
 
         self.customers = self._gen_customers()
         self.accounts = self._gen_accounts()
@@ -139,7 +141,7 @@ class BankUniverse:
     def accounts_snapshot(self, as_of: date) -> pd.DataFrame:
         df = self.accounts.copy()
         factor = _trend_factor(as_of, self.config.deposit_daily_growth, self.config.daily_noise,
-                               self.config.seed, salt=1)
+                               salt=1)
         df["balance"] = (df["balance"] * factor).round(2)   # deposits trend day-over-day
         df["snapshot_date"] = as_of
         return df
@@ -147,7 +149,7 @@ class BankUniverse:
     def loans_snapshot(self, as_of: date) -> pd.DataFrame:
         df = self.loans.copy()
         factor = _trend_factor(as_of, self.config.loan_daily_growth, self.config.daily_noise,
-                               self.config.seed, salt=2)
+                               salt=2)
         df["principal_outstanding"] = (df["principal_outstanding"] * factor).round(2)
         df["snapshot_date"] = as_of
         return df
@@ -155,7 +157,8 @@ class BankUniverse:
     def transactions_for_day(self, as_of: date, rows: int | None = None) -> pd.DataFrame:
         """One day's posting stream, referencing real accounts. Reseeded per day so the
         accounts/amounts/volume vary by date (deterministically)."""
-        rng = random.Random(self.config.seed * 100003 + as_of.toordinal())
+        rng = (random.Random() if self.config.seed is None
+               else random.Random(self.config.seed * 100003 + as_of.toordinal()))
         if rows is not None:
             n = rows
         else:

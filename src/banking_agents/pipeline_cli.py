@@ -37,11 +37,11 @@ def _fmt(v) -> str:
     return f"{v:,}"
 
 
-def run(as_of: date, root: Path, seed: int = 42) -> int:
+def run(as_of: date, root: Path) -> int:
     registry = load_source_registry()
     model_cfg = ModelConfig.load()
     mcp = LocalFilesystemMCP(root)
-    initiator = Initiator(mcp, registry, model=get_provider(model_cfg), seed=seed)
+    initiator = Initiator(mcp, registry, model=get_provider(model_cfg))
 
     print(f"Running pipeline for {as_of} (provider={model_cfg.provider}) ...\n")
     manifest = initiator.run(as_of=as_of, trigger="manual", manifest_dir=root.parent / "ops" / "manifests")
@@ -75,9 +75,8 @@ def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="Run the full Bronze->Silver->Gold pipeline.")
     p.add_argument("--as-of", type=lambda s: date.fromisoformat(s), default=date.today())
     p.add_argument("--root", type=Path, default=REPO_ROOT / "data" / "lake")
-    p.add_argument("--seed", type=int, default=42)
     args = p.parse_args(argv)
-    return run(args.as_of, args.root, args.seed)
+    return run(args.as_of, args.root)
 
 
 if __name__ == "__main__":

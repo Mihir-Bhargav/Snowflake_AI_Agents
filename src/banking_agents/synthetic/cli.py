@@ -16,10 +16,10 @@ from ..mcp import LocalFilesystemMCP
 from ..orchestration import RunManifest, StageStatus
 
 
-def generate_and_land(as_of: date, root: Path, seed: int = 42) -> RunManifest:
+def generate_and_land(as_of: date, root: Path) -> RunManifest:
     registry = load_source_registry()
     mcp = LocalFilesystemMCP(root)
-    connector = get_connector(next(iter(registry.values())).connector, registry, seed=seed)
+    connector = get_connector(next(iter(registry.values())).connector, registry)
 
     manifest = RunManifest.new(trigger="manual", window_from=as_of, window_to=as_of,
                                sources=list(registry), stages=["extract"])
@@ -42,9 +42,8 @@ def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="Generate synthetic banking data and land it into Bronze.")
     p.add_argument("--as-of", type=lambda s: date.fromisoformat(s), default=date.today())
     p.add_argument("--root", type=Path, default=REPO_ROOT / "data" / "lake")
-    p.add_argument("--seed", type=int, default=42)
     args = p.parse_args(argv)
-    generate_and_land(args.as_of, args.root, args.seed)
+    generate_and_land(args.as_of, args.root)
     return 0
 
 

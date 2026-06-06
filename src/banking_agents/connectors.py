@@ -17,7 +17,7 @@ class SyntheticConnector:
 
     name = "synthetic"
 
-    def __init__(self, registry: dict[str, SourceConfig], seed: int = 42):
+    def __init__(self, registry: dict[str, SourceConfig], seed: int | None = None):
         self._universe = BankUniverse(
             GeneratorConfig(
                 customer_count=registry["customers"].synthetic.get("customer_count", 1200),
@@ -45,7 +45,7 @@ class SyntheticConnector:
         return reference_tables()
 
 
-def get_connector(name: str, registry: dict[str, SourceConfig], seed: int = 42):
+def get_connector(name: str, registry: dict[str, SourceConfig], seed: int | None = None):
     if name == "synthetic":
         return SyntheticConnector(registry, seed=seed)
     raise NotImplementedError(f"Connector '{name}' not implemented yet (Phase 1/2 = synthetic only).")
