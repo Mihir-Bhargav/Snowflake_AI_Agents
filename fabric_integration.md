@@ -132,3 +132,40 @@ operate model is what keeps it reliable in production.
 (scheduled + on-demand) under guardrails → security-review and operate.** The deterministic ELT and
 agent code carry over unchanged; the new work is real connectors, banking security, and the
 interactive "ask the data" capability.
+
+---
+
+## Appendix — Generative BI (template-driven) — prototyped in this repo
+
+The "Copilot triggers agents to build a dashboard" capability (Phase 4b) is **built and working
+locally** as a template-driven prototype. Flow:
+
+```
+NL request → VisualizationAgent (picks ONE governed template + a source filter)
+           → renderer binds it to Gold → report
+```
+
+**Components (in the repo):**
+- **Template catalog** — `config/report_templates/{finance,hr,operations,source}.yaml`: governed,
+  pre-approved report definitions (Finance, HR, Operations, and a source-filtered view over
+  trades / loans / deposits / cards / payments / transfers). The agent may *only* assemble from these.
+- **`VisualizationAgent`** (`src/banking_agents/agents/visualization.py`) — NL → template id (+ source)
+  via the LLM, **grounded in the catalog**, with a deterministic **keyword fallback** so it always
+  returns a valid, governed selection (proven live: some requests resolve via model, some via fallback).
+- **Renderer** (`src/banking_agents/bi/render.py`) — binds the chosen template to the Gold marts and
+  emits an HTML report (the local stand-in).
+- **CLI** — `make-report "<request>"`; demo data via `seed-marts` (synthetic HR/Ops/source marts).
+
+**How it maps to Fabric (Phase 4b):**
+| Prototype piece | Fabric production equivalent |
+|-----------------|------------------------------|
+| NL request via `make-report` | **Copilot / a chat surface** in Fabric (F64+) |
+| `VisualizationAgent` (template select) | Same agent, hosted in a **Fabric notebook/function** |
+| Template catalog | The same governed catalog (selects measures/visuals, not raw data) |
+| Renderer → HTML | **Power BI REST API** creating a **PBIR report** bound to the **semantic model** |
+| Source/dimension filters | Enforced by the model's **RLS** — users see only authorised data |
+
+**Why template-driven (not free-form):** for a bank it's predictable, auditable, and governed — the
+agent decides *which approved report* to assemble and *which source* to scope to; it never authors
+arbitrary queries or touches raw/PII data. The synthetic HR/Ops/source marts are demo-only; in Fabric
+they're replaced by real domains flowing through the medallion — **the catalog and agent don't change.**

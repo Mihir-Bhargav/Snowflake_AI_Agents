@@ -1,0 +1,98 @@
+# Report-template catalog — FINANCE domain.
+# Templates are GOVERNED artifacts: the VisualizationAgent may only assemble reports from
+# these (template-driven), binding visuals to approved Gold marts + measures. It never writes
+# free-form queries. In Fabric, each template maps to a Power BI report definition (PBIR)
+# deployed via the REST API; locally the renderer produces an HTML stand-in.
+#
+# Schema (per template):
+#   id, domain, title, description, keywords[]   — selection metadata
+#   supports_source_filter: bool                 — can be scoped by business source
+#   visuals[]:
+#     type: kpi_cards | line | bar | donut
+#     title, source (gold.<table>)
+#     kpi_cards -> fields[]      line -> x, series[]      bar -> x, y      donut -> label, value
+
+templates:
+  - id: finance_executive_overview
+    domain: finance
+    title: Finance — Executive Overview
+    description: Headline financial health — deposits, loans, liquidity, margin and credit risk, with trends.
+    keywords: [finance, executive, overview, summary, headline, kpi, board]
+    supports_source_filter: false
+    visuals:
+      - type: kpi_cards
+        source: gold.kpi_daily
+        fields: [total_deposits_eur, net_loans_eur, loan_to_deposit_ratio, nim_pct, fee_income_eur, npl_rate_pct]
+      - type: line
+        title: Balance Sheet Trend (€)
+        source: gold.kpi_daily
+        x: date
+        series: [total_deposits_eur, net_loans_eur]
+      - type: line
+        title: Risk & Liquidity
+        source: gold.kpi_daily
+        x: date
+        series: [loan_to_deposit_ratio, npl_rate_pct]
+
+  - id: finance_deposits_funding
+    domain: finance
+    title: Finance — Deposits & Funding
+    description: Deposit base, day-over-day growth, and the mix by customer segment.
+    keywords: [finance, deposits, funding, liquidity, segment, growth]
+    supports_source_filter: false
+    visuals:
+      - type: kpi_cards
+        source: gold.kpi_daily
+        fields: [total_deposits_eur, deposits_growth_pct, loan_to_deposit_ratio]
+      - type: line
+        title: Total Deposits (€)
+        source: gold.kpi_daily
+        x: date
+        series: [total_deposits_eur]
+      - type: bar
+        title: Deposits by Segment (€)
+        source: gold.deposits_by_segment
+        x: segment
+        y: deposits_eur
+
+  - id: finance_credit_risk
+    domain: finance
+    title: Finance — Credit Risk
+    description: Loan book, NPL / delinquency rate trend, and outstanding by loan status.
+    keywords: [finance, credit, risk, loans, npl, delinquency, default, arrears]
+    supports_source_filter: false
+    visuals:
+      - type: kpi_cards
+        source: gold.kpi_daily
+        fields: [net_loans_eur, loans_growth_pct, npl_rate_pct]
+      - type: line
+        title: NPL / Delinquency Rate (%)
+        source: gold.kpi_daily
+        x: date
+        series: [npl_rate_pct]
+      - type: bar
+        title: Loans by Status (€)
+        source: gold.loans_by_status
+        x: status
+        y: principal_outstanding_eur
+
+  - id: finance_revenue_margin
+    domain: finance
+    title: Finance — Revenue & Margin
+    description: Fee & commission income, net interest margin, and transaction value by channel.
+    keywords: [finance, revenue, income, fee, commission, margin, nim, profitability]
+    supports_source_filter: false
+    visuals:
+      - type: kpi_cards
+        source: gold.kpi_daily
+        fields: [fee_income_eur, nim_pct, txn_value_eur, txn_count]
+      - type: line
+        title: Fee Income (€)
+        source: gold.kpi_daily
+        x: date
+        series: [fee_income_eur]
+      - type: bar
+        title: Transaction Value by Channel (€)
+        source: gold.txn_by_channel
+        x: channel
+        y: txn_value_eur

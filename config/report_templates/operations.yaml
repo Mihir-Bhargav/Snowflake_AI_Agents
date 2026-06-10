@@ -1,0 +1,66 @@
+# Report-template catalog — OPERATIONS domain. Binds to Ops Gold marts (gold.ops_*),
+# produced by `seed-marts` (synthetic for the prototype; replace with real ops telemetry in Fabric).
+
+templates:
+  - id: ops_processing_overview
+    domain: operations
+    title: Operations — Processing Overview
+    description: Transactions processed, straight-through-processing rate, exceptions, and processing time.
+    keywords: [operations, ops, processing, throughput, stp, exceptions, overview]
+    supports_source_filter: false
+    visuals:
+      - type: kpi_cards
+        source: gold.ops_processing_daily
+        fields: [txn_processed, stp_rate_pct, exceptions, avg_processing_ms, sla_adherence_pct]
+      - type: line
+        title: Volume Processed
+        source: gold.ops_processing_daily
+        x: date
+        series: [txn_processed]
+      - type: line
+        title: Straight-Through-Processing Rate (%)
+        source: gold.ops_processing_daily
+        x: date
+        series: [stp_rate_pct]
+
+  - id: ops_channel_performance
+    domain: operations
+    title: Operations — Channel Performance
+    description: Volume, uptime and processing time by channel, with SLA adherence.
+    keywords: [operations, ops, channel, uptime, availability, sla, performance, latency]
+    supports_source_filter: false
+    visuals:
+      - type: kpi_cards
+        source: gold.ops_processing_daily
+        fields: [sla_adherence_pct, avg_processing_ms, exceptions]
+      - type: bar
+        title: Volume by Channel
+        source: gold.ops_by_channel
+        x: channel
+        y: volume
+      - type: bar
+        title: Uptime by Channel (%)
+        source: gold.ops_by_channel
+        x: channel
+        y: uptime_pct
+
+  - id: ops_exceptions
+    domain: operations
+    title: Operations — Exceptions & SLA
+    description: Exception/failure trend and SLA adherence to surface operational risk.
+    keywords: [operations, ops, exceptions, failures, errors, sla, incidents, risk]
+    supports_source_filter: false
+    visuals:
+      - type: kpi_cards
+        source: gold.ops_processing_daily
+        fields: [exceptions, sla_adherence_pct, stp_rate_pct]
+      - type: line
+        title: Exceptions Trend
+        source: gold.ops_processing_daily
+        x: date
+        series: [exceptions]
+      - type: line
+        title: SLA Adherence (%)
+        source: gold.ops_processing_daily
+        x: date
+        series: [sla_adherence_pct]

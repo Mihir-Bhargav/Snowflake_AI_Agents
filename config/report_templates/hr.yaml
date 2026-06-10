@@ -1,0 +1,61 @@
+# Report-template catalog — HR domain. Binds to HR Gold marts (gold.hr_*), which are
+# produced by `seed-marts` (synthetic for the prototype; replace with real HR sources in Fabric).
+
+templates:
+  - id: hr_workforce_overview
+    domain: hr
+    title: HR — Workforce Overview
+    description: Headcount, hiring and attrition, average tenure, open roles, and headcount by department.
+    keywords: [hr, workforce, headcount, employees, people, staffing, overview]
+    supports_source_filter: false
+    visuals:
+      - type: kpi_cards
+        source: gold.hr_headcount_daily
+        fields: [headcount, hires, attrition_rate_pct, avg_tenure_years, open_positions]
+      - type: line
+        title: Headcount Trend
+        source: gold.hr_headcount_daily
+        x: date
+        series: [headcount]
+      - type: bar
+        title: Headcount by Department
+        source: gold.hr_by_department
+        x: department
+        y: headcount
+
+  - id: hr_attrition
+    domain: hr
+    title: HR — Attrition & Retention
+    description: Attrition-rate trend and attrition by department to spot retention risk.
+    keywords: [hr, attrition, retention, turnover, churn, leavers]
+    supports_source_filter: false
+    visuals:
+      - type: kpi_cards
+        source: gold.hr_headcount_daily
+        fields: [attrition_rate_pct, attrition_count, avg_tenure_years]
+      - type: line
+        title: Attrition Rate (%)
+        source: gold.hr_headcount_daily
+        x: date
+        series: [attrition_rate_pct]
+      - type: bar
+        title: Attrition Rate by Department (%)
+        source: gold.hr_by_department
+        x: department
+        y: attrition_rate_pct
+
+  - id: hr_cost
+    domain: hr
+    title: HR — Workforce Cost
+    description: Payroll cost overall and per department, with cost-per-head.
+    keywords: [hr, cost, payroll, compensation, salary, budget, spend]
+    supports_source_filter: false
+    visuals:
+      - type: kpi_cards
+        source: gold.hr_headcount_daily
+        fields: [payroll_cost_eur, cost_per_head_eur, headcount]
+      - type: bar
+        title: Payroll Cost by Department (€)
+        source: gold.hr_by_department
+        x: department
+        y: payroll_cost_eur

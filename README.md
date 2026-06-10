@@ -43,8 +43,10 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 run-pipeline --as-of 2026-05-29        # full Bronze→Silver→Gold run + executive KPIs + AI briefing
 build-dashboard                        # render data/dashboard.html (open it in a browser)
+seed-marts --as-of 2026-05-29          # synthetic HR/Operations/by-source Gold marts (for BI)
+make-report "workforce attrition by department"   # agentic, template-driven report → data/reports/
 inspect-lake                           # summarize tables, integrity & contract checks
-pytest -q                              # run the test suite (24 tests)
+pytest -q                              # run the test suite (37 tests)
 ```
 `generate-data --as-of <date>` runs the extract stage only. Generated data lands under
 `data/lake/<layer>/<table>/`, manifests in `data/ops/manifests/` (both gitignored).

@@ -1,0 +1,30 @@
+# Report-template catalog — SOURCE-FILTERED views. A single template that is parameterised by
+# a business `source` (trades, loans, deposits, cards, payments, transfers). The VisualizationAgent
+# extracts the source from the request and the renderer scopes the filtered visuals to it, while
+# keeping a cross-source comparison for context. Binds to gold.activity_by_source (from seed-marts).
+
+templates:
+  - id: source_activity
+    domain: source
+    title: Activity by Source
+    description: Volume and value for a chosen business source (trades, loans, deposits, cards, payments, transfers), with a cross-source comparison. Use when the request names or filters by a specific source/business line.
+    keywords: [source, by source, filter, trades, trading, loans, deposits, cards, payments, transfers, business line]
+    supports_source_filter: true
+    filter_field: source
+    sources: [trades, loans, deposits, cards, payments, transfers]
+    visuals:
+      - type: kpi_cards
+        source: gold.activity_by_source
+        filter: source
+        fields: [volume, value_eur]
+      - type: line
+        title: Volume Trend (selected source)
+        source: gold.activity_by_source
+        filter: source
+        x: date
+        series: [volume]
+      - type: bar
+        title: Value by Source (€) — all sources
+        source: gold.activity_by_source
+        x: source
+        y: value_eur

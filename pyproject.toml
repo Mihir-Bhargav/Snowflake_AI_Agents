@@ -22,6 +22,8 @@ generate-data = "banking_agents.synthetic.cli:main"
 run-pipeline = "banking_agents.pipeline_cli:main"
 inspect-lake = "banking_agents.inspect:main"
 build-dashboard = "banking_agents.dashboard:main"
+seed-marts = "banking_agents.synthetic.business_marts:main"
+make-report = "banking_agents.bi.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
