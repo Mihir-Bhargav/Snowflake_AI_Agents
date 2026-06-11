@@ -6,6 +6,7 @@ Delta-style Parquet directories on disk.
 """
 from .base import MCPClient, Table
 from .local import LocalFilesystemMCP
+from .onelake import OneLakeMCP
 from .remote import RemoteMCP
 
-__all__ = ["MCPClient", "Table", "LocalFilesystemMCP", "RemoteMCP"]
+__all__ = ["MCPClient", "Table", "LocalFilesystemMCP", "OneLakeMCP", "RemoteMCP"]

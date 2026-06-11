@@ -12,8 +12,9 @@ from typing import Any
 
 import yaml
 
-# Repo root = three levels up from this file (src/banking_agents/config.py).
-REPO_ROOT = Path(__file__).resolve().parents[2]
+# Repo root = three levels up from this file (src/banking_agents/config.py), unless overridden
+# by BANKING_AGENTS_HOME (used in Fabric, where config/ + contracts/ live outside the installed package).
+REPO_ROOT = Path(os.environ.get("BANKING_AGENTS_HOME") or Path(__file__).resolve().parents[2])
 CONFIG_DIR = REPO_ROOT / "config"
 
 

@@ -6,5 +6,8 @@ pyyaml>=6            # config + source registry + contracts
 # Synthetic data generation
 faker>=24            # realistic names, dates, etc.
 
+# Fabric / OneLake — Delta tables (OneLakeMCP backend)
+deltalake>=0.18
+
 # Dev / test
 pytest>=8

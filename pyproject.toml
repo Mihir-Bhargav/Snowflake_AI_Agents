@@ -12,6 +12,7 @@ dependencies = [
     "pyarrow>=15",
     "pyyaml>=6",
     "faker>=24",
+    "deltalake>=0.18",   # OneLakeMCP — Delta tables in Fabric/OneLake
 ]
 
 [project.optional-dependencies]
